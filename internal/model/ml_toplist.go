@@ -32,6 +32,7 @@ func (handler *MlEntryHandler) FindOutdated(apiEntries MlEntryHandler) (invalidE
 		}
 
 		if !exists || !apiTime.Equal(entry.LastUpdated) {
+			fmt.Printf("%v != %v [%s]\n", entry.LastUpdated, apiTime, entry.Minigame)
 			invalidEntriesHandler.Add(entry)
 		}
 	}
@@ -51,7 +52,7 @@ func (handler *MlEntryHandler) getMap() map[string]time.Time {
 }
 
 func (handler *MlEntryHandler) HasOutdatedEntries() bool {
-	fmt.Printf("Found %d outdated entries!\n", len(handler.Entries))
+	fmt.Printf("[ML] Found %d outdated entries!\n", len(handler.Entries))
 	return 0 < len(handler.Entries)
 }
 

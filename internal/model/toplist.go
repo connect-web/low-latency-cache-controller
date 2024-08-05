@@ -24,7 +24,6 @@ func (handler *EntryHandler) FindOutdated(apiEntries EntryHandler) (invalidEntri
 	invalidEntriesHandler = NewEntryHandler()
 
 	apiMap := apiEntries.getMap()
-	fmt.Println(apiMap)
 
 	for _, entry := range handler.Entries {
 		apiTime, exists := apiMap[entry.Id]
