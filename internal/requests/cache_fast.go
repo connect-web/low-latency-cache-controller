@@ -33,7 +33,7 @@ func CacheFast(host string, urls []string) model.ResponseHandler {
 		go func() {
 			defer wg.Done()
 			for url := range urlChannel {
-				result := cacheRequest(client, url)
+				result := cacheRequest(client, url, false)
 				resultChannel <- result
 			}
 		}()
