@@ -55,3 +55,64 @@ func (client *DBClient) MinigameToplist() (entries model.EntryHandler, Error err
 
 	return entries, nil
 }
+
+func (client *DBClient) MlSkillToplist() (entries model.MlEntryHandler, Error error) {
+	entries = model.NewMlEntryHandler()
+
+	query := `
+	SELECT r.activity, max(r.Time)
+	FROM ML.results r
+	WHERE r.activitytype = 'skills'
+	GROUP BY r.activity
+	`
+
+	rows, err := client.DB.Query(query)
+
+	if err != nil {
+		return entries, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var entry model.MlToplistEntry
+
+		scanErr := rows.Scan(&entry.Minigame, &entry.LastUpdated)
+
+		if scanErr == nil {
+			entries.Add(entry)
+		}
+	}
+
+	return entries, nil
+}
+
+func (client *DBClient) MlMinigameToplist() (entries model.MlEntryHandler, Error error) {
+	entries = model.NewMlEntryHandler()
+
+	query := `
+	SELECT r.activity, max(r.Time)
+	FROM ML.results r
+	WHERE r.activitytype = 'minigames'
+	GROUP BY r.activity
+	`
+	rows, err := client.DB.Query(query)
+
+	if err != nil {
+		return entries, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var entry model.MlToplistEntry
+
+		scanErr := rows.Scan(&entry.Minigame, &entry.LastUpdated)
+
+		if scanErr == nil {
+			entries.Add(entry)
+		}
+	}
+
+	return entries, nil
+}
