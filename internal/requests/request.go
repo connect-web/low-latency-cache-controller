@@ -1,8 +1,6 @@
 package requests
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/connect-web/low-latency-cache-controller/internal/model"
 	"io"
@@ -14,7 +12,7 @@ import (
 var cacheRequests = 0
 
 // makeRequest performs an HTTP GET request to the specified URL
-func cacheRequest(client *http.Client, url string) model.Response {
+func cacheRequest(client *http.Client, url string, noCache bool) model.Response {
 	// Create the result object
 	var result model.Response
 	result.Url = url
@@ -27,6 +25,10 @@ func cacheRequest(client *http.Client, url string) model.Response {
 	if err != nil {
 		fmt.Printf("Failed to create request for %s: %v\n", url, err)
 		return result
+	}
+
+	if noCache {
+		req.Header.Set("Cache-Control", "no-cache")
 	}
 
 	// Perform the request
@@ -62,34 +64,4 @@ func cacheRequest(client *http.Client, url string) model.Response {
 	}
 
 	return result
-}
-
-// revokeCache performs an HTTP POST request to the revoke-cache-batch url.
-func revokeCacheRequest(client *http.Client, domain string, urls []string) (bool, error) {
-	url := fmt.Sprintf("%s/clear-cache", domain)
-	fmt.Printf("Revoking cache for: %v\n", urls)
-
-	// Create payload for urls to delete cache
-	authenticationPayload, err := json.Marshal(model.NewAuthCachePayload(urls))
-	if err != nil {
-		fmt.Printf("Failed encode delete cache payload  %v\n", err)
-		return false, err
-	}
-
-	// Create a new request
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(authenticationPayload))
-	if err != nil {
-		fmt.Printf("Failed to create request for %s: %v\n", url, err)
-		return false, err
-	}
-
-	// Perform the request
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf("Failed to perform request to %s: %v\n", url, err)
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	return resp.StatusCode == http.StatusOK, nil
 }
